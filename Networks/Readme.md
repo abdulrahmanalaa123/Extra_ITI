@@ -155,7 +155,17 @@ very good rfc link well structured explaining some of the core concepts i explai
 - tcp is a layer 4 protocol and it is a connection based protocol
 - its stateful in the sense that it keeps track of each packet sent and its count as well as acknowledging which packet has arrived to its destination and which segment failed and retrying, etc.
 - tcp is useful for any bidirectional communication
-- 
+- the multiplexing in udp happens in tcp as well where the sender sends packets to the reciever multiplexed each has an identifying file descriptor and the reciever demultiplexes it using ports mapping to each process
+- the defining file descriptor is hashed and saved into memory in the case of tcp because it wants to save the state to checkt the connection and mapping source(addr,port), dest(addr,port) to the memory identifying if it needs retransmission where to send etc. essentially the state of the connection is stored in there
+- source port can accept any amount of connections and is only limited by the cpu and queue size or memory size essentially
+- the ack is followed by a segment descriptor for example sending 3 segments and receiving only 2 segments an ack2 is sent back acknowledging only 2 are recieved while indicating that the third needs to be retransmitted
+- the tcp connection is finally closed by using a fin and the server sends an acknowledgement and then the server sends a fin request and when the client sends the ack to the server finally the server can remove the file descriptor but as for the client it has to wait before removing the connection from its machine because of something called time wait is the time it should wait for packets that havent yet arrived to be coming at the old file descriptor so they dont get lost after closing the connection.
+- four way fin handshake , time wait is the amount of time the client waits before removing the file descriptor from its memory after closing the connection
+
+#### TCP headers
+- the sequence number is the sequence number of the current segmetn which is only 4 bytes and if exceeded it resets its different from the acknowledgement number which also takes up 4 bytes because of the fact you can acknowledge past data segment and can send new segments in the same segment
+
+
 # 14-12-2024
 
 ## TLS
