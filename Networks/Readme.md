@@ -109,8 +109,54 @@ well my explanation is redundant and im repeating basically the same words and c
 ## Internet protocol
 
 ### IP address
+- Layer 3 property (Network layer)
+- The ip address contains info about the network and the host for example a.b.c.d/24 means that 24 bits or 3 bytes are taken up by the network and 8 bits or 1 byte is left for the host 192.168.254.0/24
+#### subnets
+- the subnet is that ip 192.168.254.0/24 which means the network inside is consisted of 255 network components ranging from 192.168.254.1 ~ 192.168.254.255
+- the subnet mask is 255.255.255.0 is used to define if the current ip address belong to the same subnet by using a bitwise and on the ip address and comparing the 2 ip addresses of the request determining if it needs rerouting out of the network or just use the only its mac address and communicate inside the same network
+- for example 192.168.254.1 and 192.168.234.15 the host performs the and operation resulting in 192.168.254.0 for ip1 and 192.168.234.0 for ip2 resulting in a different subnet ip address or a different network address which means they dont belong to the same network
+#### Default Gateway
+- The default gateway is the a router which is one host considered as the link between 2 or more subnets where it has 2 or more interfaces one connected to the current network and the other to the outside network
+- if 2 hosts has the same subnet then they dont need to be rerouted then they wont go up to the network layer theyll only reach the data link and use their mac addresses to communicate
+- and if they dont belong to the same network the subnet checking operation is done to the other network and if not its sent to their default gateway checkcing as well again and so on till they reach the destination
+- a tip said by him is that to not be under the router congestion's mercy is putboth the application and the database for example in the same subnet so they dont get affected by the router
+
+#### IP Packet header components
+https://datatracker.ietf.org/doc/html/rfc791
+very good rfc link well structured explaining some of the core concepts i explained above as well as the ip packet structure
+- the most important headers are the fragments identification which takes 2 bytes that aids in assembling the fragments.
+- flag which take 3 bits the first bit is reserved the second is dont fragment which is may or dont fragment and the last is more fragments which indicates either last fragment or more fragment
+- and the fragment offset taking 13 bits of the header indicates the offset of the sent fragment which is where does it belong inside the datagram
+- the fragmentation is identified by the mtu of the reciever which is usually 15000 bytes which sends an ICMP message indicating that the sender must fragment and it cant pass
+- TTL the maximum amount of hops the fragment or packet can make before dying (1 byte)
+- and a checksum to check the validity of the data (2 bytes)
+- and the source and destination address (4 bytes)
+
+### ICMP
+- ICMP is a stateless protocol which resides in the network layer works with ip packets needing no ports or listeners to recieve or send a packet only if the reciever has his ICMP enabled.
+- why would someone disable ICMP? because since it needs no connection establishment it has no method 
+- If ICMP is disabled sometimes it can lead to a TCP black hole because its waiting on a connection but the server cant respond with icmp informing the sender to fragment the packet so it keeps waiting and whenever it sends the same packet to the server it dooesnt get a response with the ICMP
+- ICMP is used for pings, fragmentation needed message
+- there is a clever trick using the ttl of the ip packet's headers is setting it to 1 and sending pinging the client and at each node or router it can return and icmp message from the reciever that the dest is unreachable and giving it its ip address and then increasing the ttl and forwarding it to the next router which is called a trace route
 
 # 13-12-2024
+- after understanding ip protocol as well as osi model the rest became much simpler to understand simply understanding the layers and visualizing how the packet goes through each layer 
+## UDP
+- UDP is a layer 4 protocol which uses ports to address porcesses inside host unlike ip addresses which addresses hosts only 
+- stateless and needs no prior communication
+- vpns uses udp and cant use tcp because there happens a tcp meltdown which is the cascading of fragmentation or failure
+- there isnt that much to udp keep in mind that it isnt exposed it can be protected on dtls or normal tls
+- even its headers are simple only contain length and source and destination port
+- each process or each socket is uniquely identified by a file descriptor and most of what i learned is explained inside udp_server.c or tcp_server.c
+- the cons of udp can be summed up to no congestion control and the protocol isnt reliable.
+- there is a way of attacking using udp is dns flooding where spoofing their source ip address to be the address of the victim and talk to the dns server and the millions of requeset comes back to the victim basically killing it and as well as dosing dns servers but that would be hard but easy to perform.
+
+## TCP
+- tcp is a layer 4 protocol and it is a connection based protocol
+- its stateful in the sense that it keeps track of each packet sent and its count as well as acknowledging which packet has arrived to its destination and which segment failed and retrying, etc.
+- tcp is useful for any bidirectional communication
+- 
+# 14-12-2024
 
 ## TLS
 - tls lives on the session layer 
