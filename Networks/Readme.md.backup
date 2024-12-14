@@ -168,6 +168,6 @@ very good rfc link well structured explaining some of the core concepts i explai
 
 # 14-12-2024
 
-[http_1](####http-built-over-tcp)
+[http 1](####http-built-over-tcp)
 ## TLS
 - tls lives on the session layer 
