@@ -106,7 +106,11 @@ well my explanation is redundant and im repeating basically the same words and c
 - The proxy works on the same layers as the firewall because it needs to read the ports and ip addresses to be able to reroute and assigns new source ip address to the same destination ip address 
 - CDN, Load Balancer operate at the application layer it needs the applciation layer with the certificates and privelages of the server because they need to decrypt the message which in the cdn it needs it to cache it and for the load balancer it needs the laod so it can deliver it or distribute it on the servers
 
-### Internet protocol
+## Internet protocol
 
-#### IP address
+### IP address
 
+# 13-12-2024
+
+## TLS
+- tls lives on the session layer 
