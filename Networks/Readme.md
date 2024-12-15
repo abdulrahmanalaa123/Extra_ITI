@@ -167,7 +167,48 @@ very good rfc link well structured explaining some of the core concepts i explai
 
 
 # 14-12-2024
-
-[http_1](#http-built-over-tcp)
 ## TLS
-- tls lives on the session layer 
+- tls lives on the session layer
+- tls uses symmetric key to encrypt both the sent request and the recieved request its more efficient to use symmetric keys which it uses the same key to decryp t and encrypt the data sent on the network.
+- now the idea is to send the symmetric key securely without being vulnerable for anyone to get it and this is tls i presume
+- authenticating the server is done using ssl certificates which is verified by a certicate chain and asking trusted authors on the host
+- to do so the tls uses public assymetric keys to send the symmetric key
+
+### TLS 1.2 connection sequence
+- first the client sends to the server a hello request
+- the tls connection establishment uses the PKI (public key interface which we are using to send the symmetric key accross the client and the server)
+- the server sends back with RSA public key a hello request alongside the certificate
+- the client checks the certificate and sends back a change cipher with its symmetric key encrypted with the public key and the server decrypts it finally using its private key which was made for decoding
+- and then sends the client that change cipher, fin request means keys exchanged and now you can encrypt http with the given key
+- heartbleed by using openssl bug and server memory leaks to get the private keyand once you have the private key you can decrypt the backlog of requests and decrypt them all it
+- that means its bad in forward secrecy some rules were done to generate the certificate and key every 2 weeks to ensure security as a coping mechanism
+### TLS 1.3 Diffie Hellman instead of RSA
+- the client creates a public and a private key and then sends the public key and the public key to the power of the private key to the server in a client hello request
+- then the server responds with the public key raised to the private key of the server with a server hello request 
+- now to get the symmetric key you will raise the server key to the private key of the client and raise the client key to the server private key
+
+***what i understood and i might've understood it wrong is that the public keys are held by the certificates not entirely sure***
+
+## HTTP
+- [HTTP_1](#http-built-over-tcp)
+- http 1 opens a new tcp connection with every request, cant be chunked as well.
+- doesnt understand hosts only ip addresses no host header
+### HTTP 1.1
+- one persisted connection to send the http packets through it
+- it is probably sequential where you send request and after recieving the response you send another request
+- has HOL which means that if a segment fails all the other requests must wait for the packet to be retransmitted which is in the nature of tcp  
+- another hol problem was that http1.1 used to pipeline requests but requests needed to come back in the same order so the rest of the packets coming afte rhte first heavy request must wait for it to finish first
+- and pipelining which isnt used anymore is sending all requests at once and wait for their requests at once but the backend is responsible for maintaining order and ensuring that you are waiting for the first request which doesnt scale because it gets really complex and it always requires context with adding layers between the server and the client it gets even more complex.
+- the browser utilized http 1.1 for each domain by opening 6 tcp connections and getting each element such as index.html and index.css, index.js supposedly each would be on its own tcp connection
+
+### HTTP 2
+- http2 sends gets all data in a stream for each element (multiplexing) and a unique identifier for each stream representing an element and it uses odd ids for stream identification which i dont know why its an odd number specifically 
+- http2 gets really affected by the hol where each stream is independent but to the server it seems like they are all segments to the same component whihc is the poroperty of the tcp ocnnection so if index.html fails for example and it belonged to stream 1 instead of just resending the html and wait for it to be retransmitted and recieved so the other streams can resume 
+- the juggling of streams is an extra work put on the server which means increased cpu usage.
+- http2 was designed to solve the problem of sending 1 request per tcp connection (not sure of this)
+https://stackoverflow.com/questions/45583861/how-does-http2-solve-head-of-line-blocking-hol-issue
+https://ably.com/topic/http2
+
+# 15-12-2024
+
+##
