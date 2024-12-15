@@ -209,6 +209,3 @@ very good rfc link well structured explaining some of the core concepts i explai
 https://stackoverflow.com/questions/45583861/how-does-http2-solve-head-of-line-blocking-hol-issue
 https://ably.com/topic/http2
 
-# 15-12-2024
-
-##
