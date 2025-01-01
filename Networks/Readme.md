@@ -211,4 +211,4 @@ https://ably.com/topic/http2
 
 # 1-1-2025
 
-[Link](https://github.com/abdulrahmanalaa123/Extra_ITI/tree/master/apache#ssh-and-tls-and-https-and-ssl-and-diffie-hellman-how-it-is-all-related "SSH vs TLS and SSL certifcates in HTTPS")
+[SSH vs TLS and SSL certificates in HTTPS](https://github.com/abdulrahmanalaa123/Extra_ITI/tree/master/apache#ssh-and-tls-and-https-and-ssl-and-diffie-hellman-how-it-is-all-related "SSH vs TLS and SSL certifcates in HTTPS")
