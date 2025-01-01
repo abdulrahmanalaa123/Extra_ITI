@@ -11,21 +11,21 @@
 # 27-12-2024
 
 ## apache configurations
-- the main configuration of httpd exists inside the /etc/conf/httpd.conf file 
-- the main configuration of httpd is used on the main server hosted on /var/www/html while the virtual servers or websites are hosted from different locations so just keep in mind that the basic configuration is the configuration for the basic website only
+- the main configuration of httpd exists inside the `/etc/conf/httpd.conf` file 
+- the main configuration of httpd is used on the main server hosted on `/var/www/html` while the virtual servers or websites are hosted from different locations so just keep in mind that the basic configuration is the configuration for the basic website only
 ### Directives
-- The directive <listen> informs the server to listen on which port number whihc is kinda straightforward
-- The directive <ServerRoot> informs the configuration file on where to count as the root directory inside the file for example if i said the serverRoot is "/etc"
+- The directive `listen` informs the server to listen on which port number whihc is kinda straightforward
+- The directive `ServerRoot` informs the configuration file on where to count as the root directory inside the file for example if i said the serverRoot is "/etc"
 then any path i put inside the configuration would be prefixed by /etc/"directoryName"
-- the directive <Include> is used to modularize configuration files and reduce the amount of configurations inside the main config file and regexes or wild cards can be also used for example in the main config file has the line
+- the directive `Include` is used to modularize configuration files and reduce the amount of configurations inside the main config file and regexes or wild cards can be also used for example in the main config file has the line
 ```
 Include conf.modules.d/*.conf
 ```
 which includes any file ending with .conf inside conf.modules.d inside /etc/httpd /etc/httpd/conf.modules.d/\*.conf
-- <User> directive is put in the global config to specify the service user any server either main or virtual will run on and <Group> will specify the group as well 
+- `User` directive is put in the global config to specify the service user any server either main or virtual will run on and <Group> will specify the group as well 
 #### Main server configs
 
-- The directory block config in the main server config is just like chrooting ftp users
+- The `Directory` block config in the main server config is just like chrooting ftp users
 ```
 <Directory />
     AllowOverride none
@@ -34,15 +34,15 @@ which includes any file ending with .conf inside conf.modules.d inside /etc/http
 
 ```
 this will basically deny access of the root directory by any user  
-- <DocumentRoot> directive specifies the directory of which the main server will serve it files out from
-- you can see that access for /var/www is allowed for anyone which can be changed but its allowed for all by default noting that helps in understanding the difference between the root directory denying access and allowing access only for the /var/www 
+- `DocumentRoot` directive specifies the directory of which the main server will serve it files out from
+- you can see that access for `/var/www` is allowed for anyone which can be changed but its allowed for all by default noting that helps in understanding the difference between the root directory denying access and allowing access only for the /var/www 
 
 # 29-12-2024
 
-- the <Ifmodule> directive only checks if the module is loaded or not as a conditional check if it exists then the requested directive inside is ran 
-- the <TypesConfig> directive sets the location of the mime type file which tells the server which file types to configure for example assinging the pictures with extensions of jpg,png,webp as images to be treated as images inside the server
-- <AddType> is a directive used to override or add mime configuration to the loaded typesconfig file 
-- <IncludeOptional> is just an include statement but it is optional which means when no modules are found for your expression it fails silently wiht no erors and doesnt halt running
+- the `Ifmodule` directive only checks if the module is loaded or not as a conditional check if it exists then the requested directive inside is ran 
+- the `TypesConfig` directive sets the location of the mime type file which tells the server which file types to configure for example assinging the pictures with extensions of jpg,png,webp as images to be treated as images inside the server
+- `AddType` is a directive used to override or add mime configuration to the loaded typesconfig file 
+- `IncludeOptional` is just an include statement but it is optional which means when no modules are found for your expression it fails silently wiht no erors and doesnt halt running
 - Including external configuration files they are included alphabetically ordered which means the module with the name 00 will be added before 01 so 01 will have precedence if it includes overriding and if it has conflicting configurations with 00 this info is good to know for debugging purposes of the configurations of the apache server
 
 ## User-sepcific directories
@@ -132,3 +132,6 @@ touch /etc/httpd/conf.d/00-replace_host.conf
 	- second the client sends a request with the id of the public key pair it would like to authenticate with and the server checks for it in the authorized keys file 
 	- the client sends the md5 hash value of the session symmetric key combined with the number got from decrypting the server's message sent encrypted by the public key and then sends it back to the server
 	- the server uses the sent number and combines it with its own symmetric key and hashes it with md5 as well and compare it and if it matches the client is authorized to enter
+
+
+## Certificate Signing 
