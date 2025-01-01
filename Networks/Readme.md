@@ -211,22 +211,4 @@ https://ably.com/topic/http2
 
 # 1-1-2025
 
-## SSH and TLS and HTTPS and ssl and diffie hellman (How it is all related)
-- TLS is the first step in both ssh and HTTPS after the tcp connection is established to establish a secure connection
-- Alright so first diffie hellman is a key exchange algorithm used to send a symmetric key between two clients or a client server which is used in TLS encryption specifically starting from TLS 1.3 
-***what i dont understand if it is used to decrypt right away or passed through KDF (key derivation function)*** 
-
-### Now what is SSL and certifcates and certificates are only used in https
-- well the certificate has 2 things a public ccertificate which contains the public key and a private key which is generated from random bits on the processor which are more randomized and efficient depending on the processes running on the server enables more randomization to occur
-- SSL is originally a protocol for encrypting data sent throughout the network like TLS and was replaced by it but the SSL certificates are still in use and people still to this day SSL/TLS are used interchangeable but the protocol of sending is TLS and the certificates are SSL
-- certificates are generally signed by a certified author which could be found on your browser or your host and if its signed by them this informs the browser to trust the certificate author's public key which is in turn the client uses to create their private key and start the tls symmetric key sharing process
-- and when the symmetric key is shared it is used to encrypt and decrypt like explained in the TLS process
-- certicate signing is done by the server after generating the certificate and sending it to one of the authorities to be signed by them and typically done with a fee or a cost 
-
-### SSH
-- Now ssh uses as well TLS and dont use SSL certificates it initiates the handshake first and it uses the symmetric key for encrypting the connection on top of using public private key combination unlike https which just uses the ssl/tls for encryption the connection and securing it and no extra layer of security or signing because it would be expensive to implement with the amount of data sent during an http session.
-- ssh uses public private key encryption for authentication which is assymetric and probably more secure but more costly to perform on large amounts of data and how it works is:
-	- first the client generates a public private key pair and supposedly the server has the public key of the client before initiating the connection
-	- second the client sends a request with the id of the public key pair it would like to authenticate with and the server checks for it in the authorized keys file 
-	- the client sends the md5 hash value of the session symmetric key combined with the number got from decrypting the server's message sent encrypted by the public key and then sends it back to the server
-	- the server uses the sent number and combines it with its own symmetric key and hashes it with md5 as well and compare it and if it matches the client is authorized to enter
+[Link](https://github.com/abdulrahmanalaa123/Extra_ITI/tree/master/apache#ssh-and-tls-and-https-and-ssl-and-diffie-hellman-how-it-is-all-related "SSH vs TLS and SSL certifcates in HTTPS")
