@@ -9,6 +9,7 @@
 - what gave apache a huge edge before is that one of the first that supported php
 
 # 27-12-2024
+![Abdo](/home/tomato/Downloads/1368187.jpeg)
 
 ## apache configurations
 - the main configuration of httpd exists inside the `/etc/conf/httpd.conf` file 
