@@ -52,3 +52,91 @@ https://www.youtube.com/watch?v=oWuVGDese4k
 - /media is where you can access the files located on any removable media 
 - /lib , /lib64 contains the libraries needed by applications (header files, actual libraries, etc.) lib and lib64 is 32bits and 64btis libraries
 - linux is case sensitive 
+
+
+# 21-1-2025
+
+## cgroups
+- cgroups are based on the big four controllers it is a resource constraining element which limits resources whether its network or cpu or memory or disk
+- cgroups controllers can be viewed in the VFS `/sys/fs/cgroup/`
+- cgroups resource sharing is done on the parent cgroup cgroups decending from the root directly has total access to the whole cpu resources yet descending further and creating child cgroups will limit such resources if parents were set such a limit
+### Cpuset
+- the cpu controllers are for example cpuset which is repsonsible for setting the cpu required for handling the process or the number of cpus required to handle the process
+#### NUMA
+- to explain cpuset you must first understand the NUMA (non uniform memory addressing) to understand you need to first understand what is a UMA (uniform memory address)
+- the uma is the standard memory addressing which is used for frequent memory accessing which means a one cpu or socket machine that has memory bound to that cpu
+- frequent memory addressing means that if a process or a program is running and it needs to access its stored data on the memory frequently 
+- now imagine a server with several cpus managing memory would be difficult without NUMA each cpu accessing the memory would starve the whole system from accessing the memory
+- NUMA assigns memory and all the peripherals to a socket or a processor and calls it a numa node
+- when a numa node is fully utilized in memory to access the memory in a different numa node it should first call the other socket to access its memory and it cant access it directly
+- it decides the most optimum numa node to access using the numa distance you can view the numa distances of your numa using and your numa nodes `numactl --hardware`
+- managing a network for example parsing requests coming in on ports configured on different which means managing the single process across different numa nodes and communicating between them through the bus which creates a huge deal of overhead resulting in a cpu overload of a simple network request processing application
+- this process is done inside a cpu with different cores which is called context switching a process is running on a core switching up to another during execution.
+### Cpuacc
+- there is also as well the cpuacc which is cpu accounting which limits the resources taken up by the process limiting the process's using different limits such as cpu shares and quota and period
+
+#### period and quota
+- period is the specified period for a cycle of the core to finish all the tasks it has for example the core or cpu has to finish 10 tasks in 1000ms which means evenly distributing without assigning quotas would be distributed for each 100ms max equally
+- the quota is set for the process the max amount of time specified from the period  
+
+#### shares
+- shares are a numer of shares of each process from the total share pool for example specifyiing that the share pool of the core is 1024 giving 20 processes share of 50 shares means they all have the same privelage or cycle time sharing but for example giving two processes A,B A has a share of 750 and B has a share of 250 means that A has 75% and B has 25% of the total time it can use inside the cycle
+
+#### how they interact 
+[Very Neat Explanation](https://stackoverflow.com/questions/55901070/what-is-the-relationship-between-cpu-shares-and-cpu-cfs-quota-us-in-context-of-c)
+quoting because i cant explain it any better
+```
+cpu.share and cpu.cfs_quota_us are working together.
+
+Given a total cpu quota, we should firstly distribute the cpu.share of each cgroup. Then find the cgroups whose exact quota exceeds their cpu.cfs_quota_us, find all such cgroups and keep their quota as their cpu.cfs_quota_us, and collect the exceeded part as unused cpu pool. Distribute these unused cpu pool among other cgroups by cpu.share again, and iterate as above, until no cgroup is exceeding the upper limit.
+```
+
+# 24-1-2025
+
+## each controller has its own configuration files for limiting resources related to said resource for example in memory you can define the oom_control or specify the swappiness or create a soft_limit or a hard limit which we will explain and its pretty straight forward and for the cpu as well we only used and most would be used on demand and no need to know all
+- files in /cgroups or /proc aren't actually files they're an interface to lower-levels of the OS so you cant edit them using vim or nano you can echo values into them thats why echo was used before rather than just vim and edit the contents
+
+## memory controller
+- memory limiting controllers and memory swap limiting controller 
+- the limiting factors of memory are size and swap size 
+- the OOM killer (OUT Of MEMORY KILLER) will select one of the processes when the memory runs out of space to kill and if this process is system critical for you you should enable auto-restart for example in systemd 
+	- oom is determined by the cpu on which to kill to lower the percentage of killing your current process you can edit its oom_score by going into `/proc/$PID/oom_score` the value ranges from -1000 to 1000 the lower the value the lower the chance that the process is killed
+- a simple rule for assigning limits of swap and main memory the swap limit cant be less than the memory limit because in case it needs to swap out the whole memory it needs to has space enough to swap such memory 
+- for example having a memory limit of 1gb and a swap memory size of 512mb swapping the 1gb into the 512mb would mean loss in memory which doesnt make sense in the eyes of the controller so thats simply the rule
+
+### page memory fault
+- The memory address space (the address space is decided by the word size which is determined by the cpu architecture 32-bit, 64-bit) is divided where each page is a contigous block of memory for example 4kb
+- swapping out memory is done on pages and not individual bytes
+
+### virtual address space
+***(needs to be researched further)***
+- each process or application running is assigned a virtual address space mapped to a physical address to the main memory 
+
+## block controller
+- specify read and write bytes limit or specify read and write iops limit (input output operations)
+### block specifications
+- to edit into the read write you write the major and minor number of the device youre trying to edit followed by the read limit and the write limit `253:1 1000`
+#### major , minor
+- you can view the device numbers used in major by viewing `cat proc/devices`
+- the major is the driver number for managing the current device you can view it by going into `/dev` and using `ls -l` command you can see the major and minor number seperated by a comma
+- the minor is the number of the driver which is only managed by the major driver only
+- a combination of these two can be used to uniquely identify the device the system doesnt always use it to identify the device it can be extracted from the inode numbers since its a unique identifier for the device and then the major and minor are extracted after if needed
+
+### testing the limits specified
+- they can be tested using the dd operation reading from /dev/zero into a file
+- dd is a command that writes on memory and then writes files to disk and you can specify if it writes to disk directly or not you can specify the reading block size and writing block size and the amount of writes and reads
+
+## capabilities and namespaces
+
+### Introduction
+- capabilities are specifying the privileges and capabilities of the process which can be changing for example in docker capabilities what is allowed is changing depending on which stage of the process is runnign for example the allowed capabilities are chown at first but when its running it is removed it iwll be explained later but this is a breif of what is coming
+
+- namespaces are isolating the user in its root file system for simulating that its the only user on the machine such as chroot there are types of isolation:
+	- user namespaces simulates being the only used in the system
+	- process ID namespaces assigning process ids inside the namespaces is independent from the running processes on the system
+	- network namespaces the file system has its own network stack , routing tables , firewalls, etc.
+	- mount namespaces independent mounting points seen only by the namespace without affecting the host
+	- IPC namespaces independent ipc resources
+	- Unix time sharing namespace appearing to have different hosts and different domian names on the namespace
+
+### capabilities
