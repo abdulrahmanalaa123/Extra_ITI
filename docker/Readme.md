@@ -7,9 +7,11 @@
 - docker manages these containers and enables a friendly interfaces to interact using the docker cli to interact with those controlling features
 
 ### kernel namespaces,cgroups,capabilities
-[CgroupsInMyDocs]("../Redhat/Readme.md")
+[CgroupsInMyDocs](https://www.youtube.com/watch?v=JOsWB50LmwQ)
 
 # 24-1-2025
 
+## Containers from scratch
+- to uderstand containers 
 ## The Docker Engine
 - The docker engine basically refer to components which the docker server

@@ -189,6 +189,7 @@ very good rfc link well structured explaining some of the core concepts i explai
 
 ***what i understood and i might've understood it wrong is that the public keys are held by the certificates not entirely sure***
 
+git --git-dir ~/CS/devops/ITI/.git --work-tree ~/CS/devops/ITI/ push
 ## HTTP
 - [HTTP_1](#http-built-over-tcp)
 - http 1 opens a new tcp connection with every request, cant be chunked as well.
@@ -212,3 +213,4 @@ https://ably.com/topic/http2
 # 1-1-2025
 
 [SSH vs TLS and SSL certificates in HTTPS](https://github.com/abdulrahmanalaa123/Extra_ITI/tree/master/apache#ssh-and-tls-and-https-and-ssl-and-diffie-hellman-how-it-is-all-related "SSH vs TLS and SSL certifcates in HTTPS")
+

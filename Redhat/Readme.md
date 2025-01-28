@@ -104,6 +104,7 @@ Given a total cpu quota, we should firstly distribute the cpu.share of each cgro
 - a simple rule for assigning limits of swap and main memory the swap limit cant be less than the memory limit because in case it needs to swap out the whole memory it needs to has space enough to swap such memory 
 - for example having a memory limit of 1gb and a swap memory size of 512mb swapping the 1gb into the 512mb would mean loss in memory which doesnt make sense in the eyes of the controller so thats simply the rule
 
+
 ### page memory fault
 - The memory address space (the address space is decided by the word size which is determined by the cpu architecture 32-bit, 64-bit) is divided where each page is a contigous block of memory for example 4kb
 - swapping out memory is done on pages and not individual bytes
@@ -112,6 +113,8 @@ Given a total cpu quota, we should firstly distribute the cpu.share of each cgro
 ***(needs to be researched further)***
 - each process or application running is assigned a virtual address space mapped to a physical address to the main memory 
 
+## freeze
+- the freeze controller is used to freeze a process either by chance or adding the task to a freezed state controller and while running its in a state of thawed can be viewed also by accessing `/sys/fs/cgroups` and modifying `freeze.state`
 ## block controller
 - specify read and write bytes limit or specify read and write iops limit (input output operations)
 ### block specifications
@@ -126,6 +129,7 @@ Given a total cpu quota, we should firstly distribute the cpu.share of each cgro
 - they can be tested using the dd operation reading from /dev/zero into a file
 - dd is a command that writes on memory and then writes files to disk and you can specify if it writes to disk directly or not you can specify the reading block size and writing block size and the amount of writes and reads
 
+
 ## capabilities and namespaces
 
 ### Introduction
@@ -139,4 +143,33 @@ Given a total cpu quota, we should firstly distribute the cpu.share of each cgro
 	- IPC namespaces independent ipc resources
 	- Unix time sharing namespace appearing to have different hosts and different domian names on the namespace
 
-### capabilities
+# 28-1-2025
+
+## special permissions
+- there are three setuid and setgid and sticky bit
+- the set uid permission sets the uid of the only user that has execute permissions and is given by `rwsr-xr-x` adding the s instead of the execute option on the user permission octet and if set on directories is ignored
+- the set gid sets the files and dirs created inside the dir to be owned by the owner group of the directory no matter which group member created the file and yet the non group member who created the dir  can still access the created file or dir 
+- the sticky bit works on programs different than directories where on programs it enables keeping the program loaded on the ram while on directories it disables users in the same group accessing the directory to delete each other's files
+
+## ACLs 
+- ACLS also known as access control list is a permission setting command and you can get your current acl using `getfacl ./`
+- ACL has rules to be set if read from a file certain checks done to be able to parse the acl file
+- adding named ACLS either user or group for example `group:gname:rwx` should be followed by a mask if not specified the mask is specified with the same rules as the group entry `mask:r-x` but these rules are applied automatically if added using the setfacl
+- named ACLS if wanted to set no permissions it should be followed with a permision of `user:usr1:---` and not left without a permission parameter
+- default ACLS means is an ACL thats applied to all the folders and subfolders by default (idk if its when its created or generally but i presume generally)
+- default ACLS has rules as well is that creating a default acl named group using the -d flag for example `setfacl -d -m "group:grp1:r-x" .` automatically generates default original facl which is the `user::rw` `group::rx` `other::r` which corresponds to the `chmod u=rw g=rx o=r` it will end up looking like this
+```
+user::rw
+group::rx
+other::r
+mask::r
+default:user::rw
+default:group::rx
+default:other::r
+default:group:grp1:r-x
+default:mask::r-x
+```
+- masks are added with a bitwise & to the specified permissions to 
+- ACL check goes first with the owner,user named user,group named group,other
+[Really Useful explained the form in depth and a great link in general](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-security-acls.html)
+
