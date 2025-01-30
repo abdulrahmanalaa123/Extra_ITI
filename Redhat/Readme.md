@@ -173,3 +173,5 @@ default:mask::r-x
 - ACL check goes first with the owner,user named user,group named group,other
 [Really Useful explained the form in depth and a great link in general](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-security-acls.html)
 
+
+# 29-1-2025
