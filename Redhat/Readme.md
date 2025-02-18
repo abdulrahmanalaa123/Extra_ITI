@@ -147,8 +147,13 @@ Given a total cpu quota, we should firstly distribute the cpu.share of each cgro
 
 ## special permissions
 - there are three setuid and setgid and sticky bit
-- the set uid permission sets the uid of the only user that has execute permissions and is given by `rwsr-xr-x` adding the s instead of the execute option on the user permission octet and if set on directories is ignored
-- the set gid sets the files and dirs created inside the dir to be owned by the owner group of the directory no matter which group member created the file and yet the non group member who created the dir  can still access the created file or dir 
+
+- set user id if put on the file and that file is runnable and you have execute privelage in your group or other when ran your user privilages when running the script would be the same as the owner specifying a script with root as its owner then if the script is ran then the user id would be root. 
+
+- permissions of setuid and setgid are specified are S capital and s depedning if the owner or group permission had execute permissions in the beginning 
+
+- if set gid is assigned then the file group permission while running it is the same as the group permissions assigned to it and for directories any file or directory created inside the directory take sthe owner group would be the owner group of said files no matter who created them
+
 - the sticky bit works on programs different than directories where on programs it enables keeping the program loaded on the ram while on directories it disables users in the same group accessing the directory to delete each other's files
 
 ## ACLs 
@@ -173,5 +178,105 @@ default:mask::r-x
 - ACL check goes first with the owner,user named user,group named group,other
 [Really Useful explained the form in depth and a great link in general](https://documentation.suse.com/sles/15-SP6/html/SLES-all/cha-security-acls.html)
 
+# 1-2-2025
 
-# 29-1-2025
+## Creating and formatting file systems
+- `lsblk` is used to view all blk devices it gets so from reading the sysfs files on startup (dont know wwhat that means but dont want to go too much in depth)
+
+- and you can view using `fdisk -l` as well to view the available block devices `fdisk is used for manipulating the partition table to divide the disk into logical partitions saved in the partition table in sector 0 of the disk you can view the sectors sizes in fdisk -l`
+
+- mbr partitioning is also known as dos on most operating systems
+
+- The system id in the `fdisk -l` shown as `ID` specifies the partitioning schema is the file system ID (what type of file system is it)
+
+- The default system id on a linux device is a linux type System so it initiates it with a linux file system default 
+
+- fdisk manages disks and not partitions and you can find the current disks using `lsblk` to determine the disks currently available in your machine  and the fdisk is used to format disks and partition them and not file systems
+
+
+- `fdisk` changes are done in memory and not writtent to the disk unless using the write command to view the `fdisk` command you can use the m command for help
+
+- there is a reserved space other than the partition table done in mbr reserver when starting fdisk when creating partitions can be viewed as reserved with a size of 2048 on an mbr virtual disk idk if its different for other types
+
+- changing partitions in the disk the kernel needs to re read the partition table of said disk you can do so using `partprobe /dev/(disk name)`
+
+- `mkfs` used to create a file system done on a partition either a primary or logical partition and depending on the file system there is a default block size for example in ext4 the default is 4kb block size where each block represent an inode number
+
+- when making the file system for your partition it creates whats called as `superblocks` which are copies and redundancies of your inode table reserved in case of failure of said blocks storing the inode table (the metadata data about the file system created)  
+
+- `dd if=inputfile of=outputfile bs=blocksize count=count of blocks needed to be writted` 
+
+- using dd with /dev/random as the inputfile and dd with /dev/zero and outputting into a file then the random wont make uniform characters or uniform size for each block and the output is outputted as a 100mb unicode data but saved as ansi encoding whcih specifies much lower size and max size for each character conforming to a lower size overall
+
+- you can overwrrite and format a partition using dd and using dev 0 and writing to the `dev/partitionname` 
+
+- mounting is done to enable the disk or partition to be viewed inside the file system or be used as part of the file directory and mounting is mounting the partition to the selected location of the file system writing to said directory will write to said partition there are several types of mounting but this is the basic idead
+
+- you can use `df -h` to view the current file system and where each is binded to 
+- using `unmount dirname` would detach the partition 
+
+- `dumpe2fs` can be used to view everything about the information of the file system you're querying which works on ext2,ext3,ext4 
+
+- `e2fsck` checks the file system for issues and filesystem checks need to happen while being unmounted and you preferrably shouldnt efscheck while being mounted becaues it might corrupt the data while being run 
+
+- filesystem checks checks the inode tables it doesnt actually check the whole blocks of the filesystem
+
+- always backup your data you can do so by using `dd if=/dev/partitionname of=anylocation` 
+
+## Mounting file systems
+- mounting means linking files or directories allows access to the said partition
+- the shutdown process for example unmounts the root file system from your system partition
+
+- mounting a partition to the root file system and then mounting another to a child directory specifies the max limit of the child directory to that of its partition and not the root file limit and writing to it is completely offloaded from the root file system main partition
+
+- mounting is done heirarchial which means mounting two devices to the same directory the limit given and the writing done is done to the latest mounted device
+
+***difference between primary and extended and logical partitions?***
+
+- extended takes up 1 of the 4 primary ids
+
+- you cant format the file system using mkfs you can only format the logical partitions inside the 
+
+- using extended file system you can create inside both logical and primary partitions
+
+# 12-2-2025
+
+## Cgroups v2 with systemd
+- systemd controls the resources of the whole machine slicing it into 3 parts
+- `system` slice (slice of the resources used by the system to be initiated)
+- `user` slice (slicing the resources across the users on the machine)
+- `machine` slice (virtual machine slices across the machines initiated)
+- limits by default or slices by default isnt limited unless specified and its service specific
+- `systemd-cgtop` shows you the control groups resources across all the cgroups running on your system
+- `systemd-cgls` is the command for listing the available cgroups currently available or activated i presume on your system
+- `systemctl show /` which shows the root cgroup and all of its contents
+- allowing cgroups on your services you must first enable accounting on your resource that you want to limit
+- you can find the state of the current Accounting vlaues using `systemctl show / | grep -i accounting` 
+- to change the value of the accounting property of a resource you can use `systemctl set property / xAccounting=true` here we specified the "/" to specify that its enabled in the root cgroup that spans the whole system resources
+
+# 13-2-2025
+
+## MakeFile
+- actually i have nothing to say but this great [resource](https://makefiletutorial.com/) for makefiles explaining the makefile process in parsing the makefile
+
+## Sudoers file
+- running a command with sudo setting environment variables inside it would reset just right after the command is ran and that is set with the defaults inside the sudoers file with `env_reset`
+- the `secure_path` specifies the path of the commands which requires sudo user privelage
+- [DIgital Ocean Basic reference for editing](https://www.digitalocean.com/community/tutorials/how-to-edit-the-sudoers-file)
+- the syntax for the sudoers can be found inside the digital ocean link but yet a quick sum up is 
+```
+user or %group --> user or group which are specified by the rule
+ALL --> is the matching the hostname to specify all hosts you can use ALL which is more commonly used
+=
+(
+ALL --> run as user defaults to root if not specified
+:
+ALL --> run as group defaults to root if not specified
+)
+command tags 
+command --> location of the command specified
+
+```
+- [link of the man with refernce to the tags](https://www.sudo.ws/docs/man/sudoers.man/#Tag_Spec)
+
+

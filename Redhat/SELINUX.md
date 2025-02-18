@@ -1,0 +1,49 @@
+## Selinux Basics
+- auditd
+- file transitions
+- types
+- policies
+- booleans to enable and disable certain policies which isnt set to the default
+- journalctl to handle system logs `journalctl -b -0 (tail -f /var/log/messages)`
+- `booleans.local /etc/selinux/targeted/modules/active`
+- `chcon --reference` to copy the selinux label of another file to the selected
+- or `chcon -t the_object_type file`
+- or `restorecon -vR /owner_dir`
+- moving doesnt change the ownership or the selinux status of a file you can use -Z i presume to change it alongside your mv command
+- restorecon uses information form `/etc/selinux/targeted/contexts/file_contexts`
+- semanage doesnt change the context it just adds the entry to the `file_contexts` file 
+- and you can change the default context for a file by using semanage `fcontext -a -t file_type "/file_name(/.\*)?"` which means include anything under the directory and the directory itself
+- or you can add the existing directory with a file context semanage `fcontext -a -e /var/www/html /foo` which will add the default context of httpd to /foo and all its child files or directories
+- all whats being done below is adding a new custom policy
+- `/var/log/audit/audit.log | audit2allow -M policy_name`
+- `semodule -i policy_name.pp`
+- setting the policy to permissive instead of enforcing to not face any errors upon first enabling selinux on the system
+- create a file called .autorelabel to inform that the selinux needs to relabel the files and directories
+- you can also run fixfiles relabel and it will mess up the font server in your /tmp
+- you can reboot after fixing files as well
+
+### Presentation
+- first start by starting the the container with mounting a dir to a directory inside the container
+- second show that the directory is mounted read only and then open the `journalctl -b -0` | or `tail -f /var/log/messages`
+- then when the problem is selinux first go to explaining SELINUX
+- where it resides in the system to form a complete context you need all 3 users,roles,types,access but we will explore the types only
+- and then see policies assigned to the types and these booleans are rules turned on and off given by the policy file ending with pp
+- what is SELINUX? SELINUX is a MAC (Mandatory acess control) that must be applied after the DAC (discretionary acess control) 
+- Discretionary acess control are controls edited by the file owner which are user based by default while MAC (mandatory access control) is determined by the system admin and cant be changed by the user although its the owner
+- SELINUX enables process and data seperation where you shouldnt define the process as a group or entity simple a process type which has certain rules for example httpd process need to acess somewhere yet it shouldnt be enabled for the whole file system or directory or all members of the group, etc.
+- SELINUX WITH systemd integration ( systemd is considered the SELINUX access manager or the label retriever of the process or then systemd talks to the kernel and checks the access if it matches the target)
+- AVC (access vector cache) the selinux decisions are cached in the AVC for frequent access or repetitive requests to reduce the SELINUX checks 
+- second you can use `ausearch -m AVC -ts recent` (which means search for the audit logs of the module AVC with a recent date) ausearch searches the logs of the auditd which is the audit daemon which is responsible for logging all system activity
+- or journalctl which is responsible for logging the dameon processes
+- showing the SELINUX problem then piping into `audit2allow -M allow_container_httpd_local`
+- after that you can use `semodule -i policy_name.pp`
+- wont solve the issue because it thinks the issue is bash related
+- you can use either udica using `podman inspect cont_name | udica my_container`
+- and you can compare the context of files of the hostfile for example with the koko folder
+- `matchpathcon /root/koko hostname_file_path`
+- `container_file_t` is the file type assigned for podman process which is `container_t`
+- then change the context using `semanage fcontext -a -t container_file_t /koko`
+- if it didnt change this means it added the context into the default contexts and you need to use `restorecon -Rv /koko`
+- semanage fcontext adds the file's default context into the default contexts file
+- finally to solve that without the hassle you could use :z after assigning the volume for exmaple `-v /root/koko:/var/www/html:z`
+- this will solve the context issue but using udica would be much easier since it manages everything else related to ports,volumes and any configuration that requires context adjustments
