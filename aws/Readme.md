@@ -74,4 +74,63 @@
 
 - An example of a CIDR block is 10.10.0.0/16 which means you can assign 255 subnets with each containing 255 hosts `10.10.1.0/24 10.10.2.0/24 10.10.3.0/24 ...`
 
+### VPC 
+- A VPC is a virtual network used for configuring the network configuration of your services which resides inside just like configuring your own local network
 
+- default VPCs are created by default for your account configured with a default subnet for each availability zone in your region which is used for private ip addresses of your instances 
+
+- default VPCs are also assigned an internet gateway that enables public addressing and access to the instances created inside any subnet inside the VPC default subnets are automatically attached to the Internet gateway giving them both a public and a private ip address
+
+- Default internet gateways are also assigned a default routing table created with the creation of the default VPC you can either create a different route table object and assign it to the Internet gateway or you can attach a specific routing table for your created subnet 
+
+- public ip addresses of instances is assigned randomly and would change on instance stopping and starting to assign a static IP address you can configure an elastic IP address to be attached to the preffered instance for static ip addresses
+
+- you can assign multiple instances to the same public ip address and configuring the rules using a NAT Device which is assigned a public ip statically using an elastic IP address and connected to the internet gateway with the public connectivity type and attached to a specific subnet
+
+-  **public ip addresses are attached to instances or NAT devices the internet gateway only enables such routing and isnt assigned an ip of its own**
+
+- [Helpful for understanding how to initially Configure your non-default VPC](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-getting-started.html#plan-internet-connectivity)
+
+- VPCS are region based and account based which means creating a VPC isnt local to an IAM user and doesnt span multiple regions
+
+- VPC CIDR block must follow certain rules to enable assigning IP address you may assign the cidrBlock following the RFC 1918 for private IP addresses ranges
+
+- 10.0.0.0/8 which means from 10.1.0.0 till 10.255.255.255
+- 172.16.0.0/12 which means from 172.16.1.0 till 172.31.255.255
+- although 172.17.0.0/16 is available as a CIDR range as well as 172.16.0.0/12 they are used by internal AWS services which may result in conflicts
+- 192.168.0.0/16  which means 192.168.1.0 till 192.168.255.255
+
+- [rules for Inter-VPC communication with requested CIDR BLOCKS](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-cidr-blocks.html#add-cidr-block-restrictions)
+
+- Assigning public ip addresses to the VPC CIDR block will disable using that assigned ip or translating it from inside the EC2 which would conflict inside the instance and the route table will preceed all routing and would route it to the private network instead of the actual ip address
+- [discussing the CIDR ip outside of the RFC range](https://stackoverflow.com/questions/62326558/how-can-aws-use-public-ipv4-address-range-for-a-vpc-and-assign-them-as-private-i)
+
+- To visualize the vpc connection flow you can view the resource map in the yourvpc tab by clicking the wanted vpc 
+
+- default route tables assigned to the vpc will add the vpc to any newly created subnet 
+
+#### Network Border Group
+#### Local Zone
+#### Wavelength Zone
+
+### Elastic Ip Addresses
+
+- Elastic Ip address is used to reserve a static ip which can be assigned to your instance or your load Balancer or you can assign a NAT rule for your subnet to map the public ip address for your instances inside the subnet
+
+- Accounts have a limit of 5 Elastic Ip addresses unless used IP addresses are temporarily and constantly changing when assigned dynamically and can add dns rules unless used with an elastic IP address 
+
+- Resources which can be assigned an elastic IP address are NAT, EC2 instance, Network Load Balancer, Network Interfaces
+
+- you can use the elastic IP address to enable a static assignment of your AWS resources and can be used to reassign the ip address to a backup instance in case of failing of one instance 
+
+- The elastic Ip address is assigned to a network border group which holds all the Local Zones and wavelength zones as well as availability zones 
+
+
+### Internet gateways
+- there are two methods to publicly access your services method either using an elastic ip which is reserved out of the public pool of ipv4 addresses associated to your avaiability zone or for a controlled location using local zones which resides inside hte availability zone or dynamically assigning a public ip address which can be reassigned several times for each instance
+- 
+### Subnets
+
+- **each subnet created must reside in a single availability zone**
+
+- each availability zone has a set of 
