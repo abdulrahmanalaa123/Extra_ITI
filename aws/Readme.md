@@ -194,4 +194,58 @@
 
 - there are two methods to publicly access your services method either using an elastic ip which is reserved out of the public pool of ipv4 addresses associated to your avaiability zone or for a controlled location using local zones which resides inside hte availability zone or dynamically assigning a public ip address which can be reassigned several times for each instance
 
+- Internet gateways control ingress traffic which is coming from the internet targetting routing tables play a minor role in ingress traffic it uses protocols such as BGP to determine where to route traffic and internal routing tables to determine association of machines with external ip addresses
+
+- [More about BGP from AWS](https://aws.amazon.com/what-is/border-gateway-protocol/)
+
+- to enable internet access for a component inside a subnet you must enable automatic assigning of public ip address of that component and have a routing rule for the internet gateway not specifying bothw ill create a private subnet 
+
+- **whenever the instance is assigned a public ip address you're charged for reserving a public ip address from the AWS address pool inside the region**
+
+#### transit gateways
+
+- transit gateways are used for centralizing routing and connection between either vpcs or your vpc with an on-premise network 
+
+### NAT devices
+
+- Nat devices are used for rerouting traffic and enable outbound traffic and limiting inbound traffic which is created in its own subnet (they perform both NAT and PAT but called NAT for the networking standards of such device)
+
+- for example to enable internet access for a private instance you can create a nat device inside a public subnet and reroute 0.0.0.0/0 from that subnet to the nat gateway with the nat-id and enable internet access as well as attaching traffic from the nat 0.0.0.0/0 to the igw as the target
+
+- public NAT gateways can be used to connect to the internet or on premise VPCs while private NAT gateways can only route traffic through a transit gateway or a virtual private gateway
+
+- Nat Gateways are availability zone specific with redundancy implemented inside the zone if you want availability across availability zones you create a Nat gateway across multiple availability zones
+
+- NAT gateways cant be assigned security groups you can use network acls to control incoming traffic on the subnet and security groups for controlling requests on your instance
+
+- to create a NAT gateway an elastic IP address is required when defining a public connectivity type to the gateway
+
+### Security groups
+
+- Security groups specify allow rules only 
+- Several security groups associated to the same resource are merged into one group ruling the inbound and outbound traffic
+- Security groups are applied to Load balancers and Instances inside your vpc 
+- Security groups are allowed sources either a specific ip address of 192.168.2.1/32 with the 32 prefix or a CIDR block or a prefix list as well as another security group id
+- Security groups can define rules with the source of another security group Id which means any resource assigned the said security group is applied to these rules the [security groups must be associated to the same VPC](https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html#security-group-referencing) although doing so would limit the ability to delete a security group and you must first remove all the references
+- [Available resources to be assigned to a security group](https://stackoverflow.com/questions/29730155/what-are-all-the-resources-that-can-be-associated-with-a-security-group-in-aws)
+- Return traffic is allowed if its allowed to come in no matter what the rules are for example you allow http in but not out and an instance needs to send the response back it is allowed even if http is not specifically allowed
+- Evaluates all rules before deciding allowing traffic
+
+### Network ACLS 
+
+- Network ACLS are assigned to subnets with a default ACL created with the VPC which allows all incoming traffic
+
+- Whenever a rule is created its assigned a number and the default rule whihc exists by default and given the number of \* cant be changed and it denies access for all traffic which is evaluated by default if none of the rules created match
+
+- Evaluates rules in order starting with the lowest numbered rule which decides to allow traffic or not
+
+- You can specify a port range using `port_start-port_end` in the port range
+
+- The deny rules can be usually used when you want to allow ports coming from a certain source and want to deny a specific port range just make sure that the deny is given a lower number than the allow rule associated with the source
+
+- ACL rules when changed are applied automatically to all associated subnets
+
+# 24-2-2025
+
+## Elastic load balancers
 
