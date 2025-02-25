@@ -247,5 +247,46 @@
 
 # 24-2-2025
 
+## VPC endpoints
+- enable you to connect to private resources publicly using AWS Private link which routes you over the AWS network [interface endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html#interface-endpoints) and [gateway endpoints](https://docs.aws.amazon.com/whitepapers/latest/aws-privatelink/what-are-vpc-endpoints.html#gateway-endpoints)
+
 ## Elastic load balancers
+
+### First of all the difference between classic, network, gateway, Application
+- The main difference is the use case and targets and how it initiates the connection with its targets for example the gateway load balancer simply treats ip addresses and forwards the connection coming to it while application and network load balancers reinitiates a connection with its targets
+
+- The Network, Application, and Gateway load balancers differ from the classic load balancers is they assign their load balancing on targets instead of instances which enables ease of swapping out elements of the target groups or removing specific target groups without halting the load balancer's process
+
+- Health checks in Classic load balancers are done a specific port and not instances nor target groups which doesnt enable much flexibiility in managing multiple services or instances
+
+- [official AWS comparison done in a table but it shows the enabled features in each but not the core difference for completely understanding](https://aws.amazon.com/elasticloadbalancing/features/#Product_comparisons)
+
+#### Classic Load Balancers
+- most basic type of load balancers as well as its deprecated 
+- it supports balancing across instances and not target groups which doesnt work well with auto scaling groups since it works with instance ids and doesnt even support ip addresses neither target groups
+
+#### Application Load Balancer
+- Application Load balancers enable routing based on the path of the request, http headers, query string, and source IP 
+- that is beacuse it operates on the application layer so it has access to the http request and its headers
+- useful for routing requests to multiple applications on a signle instance each assigned to a different target group each on a different port
+- Application Load balancers are priced per hour and enabled in the free tier
+- Health checks are performed on the target group level which enables defining health checks for each indpeendent service
+#### Network Load Balancer
+- Network load balancers supports high throughput traffic which is perfect for high load balancing applications
+- The network load balancer supports assigning it a static ip address either assigned by aws or using an elastic ip address with one in each subnet its assigned to with a max of 2 elastic ip addresses
+- Shares the same ability to route to several applications in the same instance using several target groups
+- Netowrk load balancers isnt included in the free teir for aws
+- Health checks are performed on the target group level as well such as the ALB
+#### Gateway Load Balancer
+- Its used for running network traffic through firewalls another VPC first for running an IDS Or and IPS before recieving traffic inside my instances not useful for me atm so not going to delve deep into it
+
+### How to create and configure Load balancers
+
+- Load balancers should be enabled inside two availability zones by attaching subnets from each zone at least 2 availability zone should be enabled for it to be able to work properly and it balances the load accross the assigned availability zones equally or at least it tries to
+- to enable unequal or cross-zone load balancing its a feature that you must enable explicitly to enable load balancing on unequal availability zone resources
+- Each load balancer is given a DNS name with amazonaws.com domain that resolves to the ip given to the load balancer and enables connecting to it when using security groups you can route to the load balancer using its security group id
+- Using network load balancers gives the load balancer a network interface assigned an ip address in each availability zone its assigned to the dns entry is mapped to both ip addresses depends on the traffic with a ttl of a default of 60 seconds until it switches to the other AZ
+- [explaining the difference between routing schemes of differnet load balancers in the AWS docs](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html#request-routing)
+- **keep in mind that instances are treated only with their private ip address when resolving whether in internet facing or internal load balancers**
+- **internal load balancers DNS name is only reoslveable from clients with access to the VPC of the said load balancer**
 
