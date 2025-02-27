@@ -290,3 +290,7 @@
 - **keep in mind that instances are treated only with their private ip address when resolving whether in internet facing or internal load balancers**
 - **internal load balancers DNS name is only reoslveable from clients with access to the VPC of the said load balancer**
 
+- [configuring the security groups for a load balancer this can be applied to all load balancer types](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-update-security-groups.html)
+
+# 25-2-2025
+
